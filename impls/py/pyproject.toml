@@ -1,0 +1,51 @@
+[project]
+name = "rune-512"
+version = "0.1.1"
+description = "A Python implementation of the Rune-512 encoding and decoding algorithm."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    { name = "Lawrence Forman", email = "me@merklejerk.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = [
+    "rune-512",
+    "encoding",
+    "decoding",
+    "base64",
+    "data encoding",
+    "binary encoding",
+    "codepoint encoding",
+]
+dependencies = [
+    "crc>=7.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/merklejerk/rune-512"
+Repository = "https://github.com/merklejerk/rune-512.git"
+Issues = "https://github.com/merklejerk/rune-512/issues"
+
+[build-system]
+requires = [
+    "setuptools>=67.7.2",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests"]
