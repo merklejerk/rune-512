@@ -1,6 +1,6 @@
 [project]
 name = "rune-512"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Python implementation of the Rune-512 encoding and decoding algorithm."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -49,3 +49,6 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["tests"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"

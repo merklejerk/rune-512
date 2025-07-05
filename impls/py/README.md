@@ -74,35 +74,48 @@ python -m rune_512 decode --hex "ᛝ⣄⢯╺╭◮◠"
 # Output: deadbeef
 ```
 
-### Python Library
+### Library
 
-You can also use `rune-512` directly in your Python code.
+You can also use `rune-512` as a library in your Python projects.
+
+#### Encoding
+
+To encode a byte string:
 
 ```python
-from rune_512 import encode, decode
+from rune_512 import encode
 
-# Simple payload
 payload = b'hello world'
-encoded = encode(payload)
-print(f"Encoded: {encoded}")
-
-decoded = decode(encoded)
-print(f"Decoded: {decoded.decode()}")
-
-# More complex payload
-complex_payload = b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f'
-encoded_complex = encode(complex_payload)
-print(f"Encoded complex: {encoded_complex}")
-
-decoded_complex = decode(encoded_complex)
-assert decoded_complex == complex_payload
+encoded_string = encode(payload)
+print(encoded_string)
+# Output: ᛝ⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
+
+#### Decoding
+
+To decode a string:
+
+```python
+from rune_512 import decode
+
+encoded_string = 'ᛝ⠻◈□┫⣆▍◈⠻╯⣤▱┠'
+try:
+    payload, codepoints_consumed = decode(encoded_string)
+    print(payload)
+    # Output: b'hello world'
+    print(f"Consumed {codepoints_consumed} codepoints.")
+    # Output: Consumed 13 codepoints.
+except ValueError as e:
+    print(f"Decoding failed: {e}")
+```
+
+The `decode` function returns a tuple containing the decoded `bytes` and the number of Unicode codepoints consumed from the input string. This is useful for parsing data from streams or larger text blocks that may contain other information. Since the payload length is not encoded in the data, `rune-512` is designed for stream-based decoding. The decoder reads characters until it encounters one outside its alphabet, and the returned count helps you know how much of the input was part of the encoded data.
 
 ## How It Works
 
 A `rune-512` encoded string consists of three parts:
 
-1.  **Magic Prefix (`ᛝ`):** A special character that identifies the string as `rune-512` encoded data.
+1.  **Magic Prefix (`ᛝ`):** A special character that identifies the string as `rune-512` encoded data. In practice, you can scan for this prefix to find the potential start of a `rune-512` encoded sequence in a larger text. The library exports this value as `MAGIC_PREFIX`.
 2.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
 3.  **Payload:** The binary data, packed into 9-bit chunks.
 

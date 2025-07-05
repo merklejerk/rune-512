@@ -58,13 +58,13 @@ def main():
         else:
             input_string = args.string
         try:
-            decoded = decode(input_string)
+            decoded, _ = decode(input_string)
             if args.hex:
                 print(decoded.hex())
             else:
-                print(decoded.decode())
+                sys.stdout.buffer.write(decoded)
         except ValueError as e:
-            print(f"Error: {e}", file=sys.stderr)
+            print(f"error: {e}", file=sys.stderr)
             sys.exit(1)
 
 if __name__ == "__main__":

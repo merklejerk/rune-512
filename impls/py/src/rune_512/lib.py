@@ -39,39 +39,45 @@ def encode(payload: bytes) -> str:
 
     return MAGIC_PREFIX + "".join(encoded_chars)
 
-def _decode_stream_to_int(data_stream: str) -> tuple[int, int]:
+def _decode_stream_to_int(data_stream: str) -> tuple[int, int, int]:
     """
     Decodes the an alphabet stream into an integer.
-    Returns the decoded integer and the number of bits.
+    Returns the decoded integer, the number of bits, and codepoints consumed.
     """
     decoded_int = 0
     num_bits = 0
+    codepoints_consumed = 0
     for char in data_stream:
         if char in ALPHABET_MAP:
             value = ALPHABET_MAP[char]
             decoded_int = (decoded_int << 9) | value
             num_bits += 9
+            codepoints_consumed += 1
         else:
             # Stop if we encounter a character not in the alphabet
             break
             
-    return decoded_int, num_bits
+    return decoded_int, num_bits, codepoints_consumed
 
 
-def decode(encoded_string: str) -> bytes:
+def decode(encoded_string: str) -> tuple[bytes, int]:
     """
     Decodes a Rune-512 string into a byte payload.
+    Returns the payload and the number of codepoints consumed.
     """
     if not encoded_string:
         raise ValueError("Invalid packet: empty string")
 
+    codepoints_consumed = 0
     data_stream = encoded_string
     if encoded_string.startswith(MAGIC_PREFIX):
         data_stream = encoded_string[len(MAGIC_PREFIX):]
+        codepoints_consumed += len(MAGIC_PREFIX)
     else:
         raise ValueError("Invalid magic prefix")
 
-    decoded_int, num_bits = _decode_stream_to_int(data_stream)
+    decoded_int, num_bits, stream_codepoints_consumed = _decode_stream_to_int(data_stream)
+    codepoints_consumed += stream_codepoints_consumed
     
     if num_bits < HEADER_BITS:
         raise ValueError("Invalid packet: not enough data for header")
@@ -109,4 +115,4 @@ def decode(encoded_string: str) -> bytes:
     if calculated_checksum != retrieved_checksum:
         raise ValueError("Checksum mismatch: data is corrupt")
 
-    return retrieved_payload
+    return retrieved_payload, codepoints_consumed
