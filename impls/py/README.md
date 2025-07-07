@@ -10,13 +10,13 @@ It uses a carefully selected 512-character symbolic unicode alphabet that is not
 For example, here's 32 random bytes:
 
 ```
-⋐⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
+⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
 ```
 
 Here's the string `"the fox jumped over the lazy dog"`:
 
 ```
-⋐⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
+⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
 ```
 
 ## Features
@@ -45,32 +45,32 @@ The package provides a CLI for easy encoding and decoding from your terminal.
 To encode a string:
 ```bash
 python -m rune_512 encode "hello world"
-# Output: ⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
 
 To encode a hex string, use the `--hex` flag:
 ```bash
 python -m rune_512 encode --hex "deadbeef"
-# Output: ⋐⣄⢯╺╭◮◠
+# Output: ⣄⢯╺╭◮◠
 ```
 
 You can also pipe data from stdin:
 ```bash
 echo "some data" | python -m rune_512 encode
-# Output: ⋐⠘⡴◍╻⣖⢤⠙⠰╴⣂
+# Output: ⠘⡴◍╻⣖⢤⠙⠰╴⣂
 ```
 
 #### Decoding
 
 To decode a `rune-512` string:
 ```bash
-python -m rune_512 decode "⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠"
+python -m rune_512 decode "⠻◈□┫⣆▍◈⠻╯⣤▱┠"
 # Output: hello world
 ```
 
 To decode to a hex string, use the `--hex` flag:
 ```bash
-python -m rune_512 decode --hex "⋐⣄⢯╺╭◮◠"
+python -m rune_512 decode --hex "⣄⢯╺╭◮◠"
 # Output: deadbeef
 ```
 
@@ -88,7 +88,7 @@ from rune_512 import encode
 payload = b'hello world'
 encoded_string = encode(payload)
 print(encoded_string)
-# Output: ⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
 
 #### Decoding
@@ -98,26 +98,27 @@ To decode a string:
 ```python
 from rune_512 import decode
 
-encoded_string = '⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠'
+encoded_string = '⠻◈□┫⣆▍◈⠻╯⣤▱┠'
 try:
     payload, codepoints_consumed = decode(encoded_string)
     print(payload)
     # Output: b'hello world'
     print(f"Consumed {codepoints_consumed} codepoints.")
-    # Output: Consumed 13 codepoints.
+    # Output: Consumed 12 codepoints.
 except ValueError as e:
     print(f"Decoding failed: {e}")
 ```
 
 The `decode` function returns a tuple containing the decoded `bytes` and the number of Unicode codepoints consumed from the input string. This is useful for parsing data from streams or larger text blocks that may contain other information. Since the payload length is not encoded in the data, `rune-512` is designed for stream-based decoding. The decoder reads characters until it encounters one outside its alphabet, and the returned count helps you know how much of the input was part of the encoded data.
 
+It is up to the user to decide on a scheme for indicating the start of a valid encoded payload inside of a larger body of text.
+
 ## How It Works
 
-A `rune-512` encoded string consists of three parts:
+A `rune-512` encoded string consists of two parts:
 
-1.  **Magic Prefix (`⋐`):** A special character that identifies the string as `rune-512` encoded data. In practice, you can scan for this prefix to find the potential start of a `rune-512` encoded sequence in a larger text. The library exports this value as `MAGIC_PREFIX`.
-2.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
-3.  **Payload:** The binary data, packed into 9-bit chunks.
+1.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
+2.  **Payload:** The binary data, packed into 9-bit chunks.
 
 Each 9-bit chunk is mapped to a character in the 512-character alphabet. This structure ensures that the data is both compact and verifiable.
 

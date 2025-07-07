@@ -1,28 +1,27 @@
-export type RuneErrorCode =
-    | 'EMPTY_STRING'
-    | 'INVALID_PREFIX'
-    | 'SHORT_PACKET'
-    | 'INVALID_PADDING'
-    | 'CHECKSUM_MISMATCH';
-
 export class RuneError extends Error {
-    code: RuneErrorCode;
-
-    private static readonly messageMap: Record<RuneErrorCode, string> = {
-        'EMPTY_STRING': "Invalid packet: empty string",
-        'INVALID_PREFIX': "Invalid magic prefix",
-        'SHORT_PACKET': "Invalid packet: not enough data for header",
-        'INVALID_PADDING': "Invalid padding",
-        'CHECKSUM_MISMATCH': "Checksum mismatch: data is corrupt"
-    };
-
-    constructor(code: RuneErrorCode) {
-        super();
+    constructor(message: string) {
+        super(message);
         this.name = 'RuneError';
-        this.code = code;
     }
+}
 
-    get message(): string {
-        return RuneError.messageMap[this.code];
+export class ShortPacketError extends RuneError {
+    constructor(message = 'Packet is too short') {
+        super(message);
+        this.name = 'ShortPacketError';
+    }
+}
+
+export class ChecksumMismatchError extends RuneError {
+    constructor(message = 'Checksum mismatch: data is corrupt') {
+        super(message);
+        this.name = 'ChecksumMismatchError';
+    }
+}
+
+export class InvalidPaddingError extends RuneError {
+    constructor(message = 'Invalid padding') {
+        super(message);
+        this.name = 'InvalidPaddingError';
     }
 }

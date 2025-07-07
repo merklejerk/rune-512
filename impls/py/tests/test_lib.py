@@ -1,7 +1,13 @@
 import pytest
 import random
 import os
-from src.rune_512 import encode, decode, ALPHABET, InvalidPrefixError, ShortPacketError, ChecksumMismatchError
+from src.rune_512 import encode, decode, ALPHABET, ChecksumMismatchError, ShortPacketError
+
+def test_decode_empty_string():
+    """Tests that decoding an empty string returns an empty payload."""
+    decoded, consumed = decode("")
+    assert decoded == b''
+    assert consumed == 0
 
 def test_encode_decode_empty():
     """Tests encoding and decoding an empty payload."""
@@ -41,10 +47,17 @@ def test_encode_decode_random(execution_number):
     assert decoded == payload
     assert consumed == len(encoded)
 
-def test_invalid_prefix():
-    """Tests that decoding fails with an invalid prefix."""
-    with pytest.raises(InvalidPrefixError):
-        decode("invalid_prefix")
+def test_decode_invalid_codepoints_only():
+    """Tests that decoding a string with only invalid codepoints fails."""
+    with pytest.raises(ShortPacketError):
+        decode("!@#$")
+
+def test_truncated_header():
+    """Tests that decoding fails when the header is truncated."""
+    encoded = encode(b'some data')
+    # Truncate the encoded string to a length that is shorter than a full header
+    with pytest.raises(ChecksumMismatchError):
+        decode(encoded[:3]) # A header is at least 2 codepoints, but data makes it longer
 
 def test_short_packet():
     """Tests that decoding fails with a packet that is too short."""

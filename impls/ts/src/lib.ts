@@ -1,9 +1,8 @@
 import { crc16xmodem } from 'crc';
 import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 import { ALPHABET, ALPHABET_MAP } from './alphabet.js';
-import { RuneError } from './errors.js';
+import { ShortPacketError, ChecksumMismatchError, InvalidPaddingError } from './errors.js';
 
-export const MAGIC_PREFIX = "⋐";
 const HEADER_BITS = 17;
 const PARITY_BIT = 1;
 const CHECKSUM_BITS = 16;
@@ -35,7 +34,7 @@ export function encode(payload: Uint8Array): string {
         encodedChars.push(ALPHABET[chunk]);
     }
     
-    return MAGIC_PREFIX + encodedChars.join('');
+    return encodedChars.join('');
 }
 
 /**
@@ -68,24 +67,17 @@ function decodeStreamToInt(dataStream: string): [bigint, number, number] {
  */
 export function decode(encodedString: string): [Uint8Array, number] {
     if (!encodedString) {
-        throw new RuneError('EMPTY_STRING');
+        return [new Uint8Array(), 0];
     }
     
-    let codepointsConsumed = 0;
-    let dataStream = encodedString;
+    const [decodedInt, numBits, codepointsConsumed] = decodeStreamToInt(encodedString);
+    
+    if (numBits === 0) {
+        throw new ShortPacketError('Input contains no valid codepoints.');
+    }
 
-    if (encodedString.startsWith(MAGIC_PREFIX)) {
-        dataStream = encodedString.slice(MAGIC_PREFIX.length);
-        codepointsConsumed += MAGIC_PREFIX.length;
-    } else {
-        throw new RuneError('INVALID_PREFIX');
-    }
-    
-    const [decodedInt, numBits, streamCodepointsConsumed] = decodeStreamToInt(dataStream);
-    codepointsConsumed += streamCodepointsConsumed;
-    
     if (numBits < HEADER_BITS) {
-        throw new RuneError('SHORT_PACKET');
+        throw new ShortPacketError('Invalid packet: not enough data for header');
     }
     
     const payloadBitsPadded = numBits - HEADER_BITS;
@@ -104,7 +96,7 @@ export function decode(encodedString: string): [Uint8Array, number] {
     }
     
     if (payloadBitsPadded < paddingBits) {
-        throw new RuneError('INVALID_PADDING');
+        throw new InvalidPaddingError();
     }
     
     const payloadBits = payloadBitsPadded - paddingBits;
@@ -117,7 +109,7 @@ export function decode(encodedString: string): [Uint8Array, number] {
     const calculatedChecksum = crc16xmodem(retrievedPayload);
     
     if (calculatedChecksum !== retrievedChecksum) {
-        throw new RuneError('CHECKSUM_MISMATCH');
+        throw new ChecksumMismatchError();
     }
     
     return [retrievedPayload, codepointsConsumed];

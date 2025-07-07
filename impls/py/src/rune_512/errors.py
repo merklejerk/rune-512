@@ -7,9 +7,14 @@ class InvalidPrefixError(RuneError):
     def __init__(self, message="Invalid magic prefix"):
         super().__init__(message)
 
+class InvalidPaddingError(RuneError):
+    """Raised when the padding is invalid."""
+    def __init__(self, message="Invalid padding"):
+        super().__init__(message)
+
 class ShortPacketError(RuneError):
-    """Raised when the packet is too short to contain a valid header or payload."""
-    def __init__(self, message="Invalid packet: not enough data"):
+    """Raised when a packet is too short to be valid."""
+    def __init__(self, message="Packet is too short"):
         super().__init__(message)
 
 class ChecksumMismatchError(RuneError):

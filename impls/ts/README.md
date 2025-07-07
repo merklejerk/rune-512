@@ -10,13 +10,13 @@ It uses a carefully selected 512-character symbolic unicode alphabet that is not
 For example, here's 32 random bytes:
 
 ```
-⋐⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
+⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
 ```
 
 Here's the string `"the fox jumped over the lazy dog"`:
 
 ```
-⋐⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
+⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
 ```
 
 ## Features
@@ -46,32 +46,32 @@ The package provides a CLI for easy encoding and decoding from your terminal.
 To encode a string:
 ```bash
 npx rune-512 encode "hello world"
-# Output: ⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
 
 To encode a hex string, use the `--hex` flag:
 ```bash
 npx rune-512 encode --hex "deadbeef"
-# Output: ⋐⣄⢯╺╭◮◠
+# Output: ⣄⢯╺╭◮◠
 ```
 
 You can also pipe data from stdin:
 ```bash
 echo "some data" | npx rune-512 encode
-# Output: ⋐⠘⡴◍╻⣖⢤⠙⠰╴⣂
+# Output: ⠘⡴◍╻⣖⢤⠙⠰╴⣂
 ```
 
 #### Decoding
 
 To decode a `rune-512` string:
 ```bash
-npx rune-512 decode "⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠"
+npx rune-512 decode "⠻◈□┫⣆▍◈⠻╯⣤▱┠"
 # Output: hello world
 ```
 
 To decode to a hex string, use the `--hex` flag:
 ```bash
-npx rune-512 decode --hex "⋐⣄⢯╺╭◮◠"
+npx rune-512 decode --hex "⣄⢯╺╭◮◠"
 # Output: deadbeef
 ```
 
@@ -89,7 +89,7 @@ import { encode } from 'rune-512';
 const payload = new TextEncoder().encode('hello world');
 const encodedString = encode(payload);
 console.log(encodedString);
-// Output: ⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠
+// Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
 
 #### Decoding
@@ -97,32 +97,33 @@ console.log(encodedString);
 To decode a string:
 
 ```typescript
-import { decode, RuneError } from 'rune-512';
+import { decode, ShortPacketError, ChecksumMismatchError, InvalidPaddingError } from 'rune-512';
 
-const encodedString = '⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠';
+const encodedString = '⠻◈□┫⣆▍◈⠻╯⣤▱┠';
 
 try {
     const [payload, codepointsConsumed] = decode(encodedString);
     console.log(new TextDecoder().decode(payload));
     // Output: hello world
     console.log(`Consumed ${codepointsConsumed} codepoints.`);
-    // Output: Consumed 13 codepoints.
+    // Output: Consumed 12 codepoints.
 } catch (e) {
-    if (e instanceof RuneError) {
-        console.error(`Decoding failed with code ${e.code}: ${e.message}`);
+    if (e instanceof ShortPacketError || e instanceof ChecksumMismatchError || e instanceof InvalidPaddingError) {
+        console.error(`Decoding failed: ${e.message}`);
     }
 }
 ```
 
 The `decode` function returns a tuple containing the decoded `Uint8Array` and the number of Unicode codepoints consumed from the input string. This is useful for parsing data from streams or larger text blocks that may contain other information.
 
+It is up to the user to decide on a scheme for indicating the start of a valid encoded payload inside of a larger body of text.
+
 ## How It Works
 
-A `rune-512` encoded string consists of three parts:
+A `rune-512` encoded string consists of two parts:
 
-1.  **Magic Prefix (`⋐`):** A special character that identifies the string as `rune-512` encoded data.
-2.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
-3.  **Payload:** The binary data, packed into 9-bit chunks.
+1.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
+2.  **Payload:** The binary data, packed into 9-bit chunks.
 
 Each 9-bit chunk is mapped to a character in the 512-character alphabet. This structure ensures that the data is both compact and verifiable.
 

@@ -1,9 +1,15 @@
 import { expect } from 'chai';
 import { encode, decode, ALPHABET } from '../src/lib.js';
-import { RuneError } from '../src/errors.js';
+import { ShortPacketError, ChecksumMismatchError } from '../src/errors.js';
 import * as crypto from 'crypto';
 
 describe('Rune-512 Encoding and Decoding', () => {
+
+    it('should decode an empty string to an empty payload', () => {
+        const [decoded, consumed] = decode("");
+        expect(Buffer.from(decoded)).to.deep.equal(Buffer.from([]));
+        expect(consumed).to.equal(0);
+    });
 
     it('should encode and decode an empty payload', () => {
         const payload = Buffer.from([]);
@@ -40,62 +46,38 @@ describe('Rune-512 Encoding and Decoding', () => {
         });
     }
 
-    it('should fail with an invalid prefix', () => {
-        expect(() => decode("invalid_prefix")).to.throw(RuneError, 'Invalid magic prefix');
-        try {
-            decode("invalid_prefix");
-        } catch (e: any) {
-            expect(e).to.be.an.instanceOf(RuneError);
-            expect(e.code).to.equal('INVALID_PREFIX');
-        }
+    it('should fail when decoding a string with only invalid codepoints', () => {
+        expect(() => decode("!@#$")).to.throw(ShortPacketError, 'Input contains no valid codepoints.');
+    });
+
+    it('should fail when the header is truncated', () => {
+        const encoded = encode(Buffer.from('some data'));
+        expect(() => decode(encoded.slice(0, 3))).to.throw(ChecksumMismatchError);
     });
 
     it('should fail with a packet that is too short', () => {
         const encoded = encode(Buffer.from('short'));
-        expect(() => decode(encoded.slice(0, 1))).to.throw(RuneError, 'Invalid packet: not enough data for header');
-        try {
-            decode(encoded.slice(0, 1));
-        } catch (e: any) {
-            expect(e).to.be.an.instanceOf(RuneError);
-            expect(e.code).to.equal('SHORT_PACKET');
-        }
+        expect(() => decode(encoded.slice(0, 1))).to.throw(ShortPacketError);
     });
 
     it('should fail when the checksum is incorrect', () => {
         const encoded = encode(Buffer.from('some data'));
-        const tamperedChar = ALPHABET.includes('b') ? 'a' : 'b';
+        const originalCharIndex = ALPHABET.indexOf(encoded[encoded.length - 1]);
+        const tamperedChar = ALPHABET[(originalCharIndex + 16) % ALPHABET.length];
         const tamperedEncoded = encoded.slice(0, -1) + tamperedChar;
-        expect(() => decode(tamperedEncoded)).to.throw(RuneError, 'Checksum mismatch: data is corrupt');
-        try {
-            decode(tamperedEncoded);
-        } catch (e: any) {
-            expect(e).to.be.an.instanceOf(RuneError);
-            expect(e.code).to.equal('CHECKSUM_MISMATCH');
-        }
+        expect(() => decode(tamperedEncoded)).to.throw(ChecksumMismatchError);
     });
 
     it('should fail when the payload is truncated', () => {
         const encoded = encode(Buffer.from('some data'));
-        expect(() => decode(encoded.slice(0, -1))).to.throw(RuneError, 'Checksum mismatch: data is corrupt');
-        try {
-            decode(encoded.slice(0, -1));
-        } catch (e: any) {
-            expect(e).to.be.an.instanceOf(RuneError);
-            expect(e.code).to.equal('CHECKSUM_MISMATCH');
-        }
+        expect(() => decode(encoded.slice(0, -1))).to.throw(ChecksumMismatchError);
     });
 
     it('should fail with extra valid codepoints', () => {
         const payload = Buffer.from('hello');
         const encoded = encode(payload);
         const encodedWithExtra = encoded + ALPHABET[0] + ALPHABET[1];
-        expect(() => decode(encodedWithExtra)).to.throw(RuneError, 'Checksum mismatch: data is corrupt');
-        try {
-            decode(encodedWithExtra);
-        } catch (e: any) {
-            expect(e).to.be.an.instanceOf(RuneError);
-            expect(e.code).to.equal('CHECKSUM_MISMATCH');
-        }
+        expect(() => decode(encodedWithExtra)).to.throw(ChecksumMismatchError);
     });
 
     it('should ignore extra invalid codepoints and report consumed length', () => {
