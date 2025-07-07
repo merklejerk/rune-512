@@ -1,0 +1,48 @@
+{
+  "name": "rune-512",
+  "version": "0.1.0",
+  "description": "A Typescript implementation of the Rune-512 encoding and decoding algorithm.",
+  "type": "module",
+  "main": "dist/src/cli.js",
+  "bin": {
+    "rune-512": "dist/src/cli.js"
+  },
+  "scripts": {
+    "start": "node dist/src/cli.js",
+    "build": "tsc -b",
+    "test": "tsc -b && mocha 'dist/**/*.spec.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/merklejerk/rune-512.git"
+  },
+  "keywords": [
+    "binary",
+    "encoding",
+    "codepoints",
+    "base64",
+    "rune-512",
+    "base512"
+  ],
+  "author": "Lawrence Forman <me@merklejerk.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/merklejerk/rune-512/issues"
+  },
+  "homepage": "https://github.com/merklejerk/rune-512#readme",
+  "devDependencies": {
+    "@types/chai": "^4.3.20",
+    "@types/crc": "^4.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.0.10",
+    "@types/yargs": "^17.0.32",
+    "chai": "^5.1.1",
+    "mocha": "^10.5.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "bigint-buffer": "^1.1.5",
+    "crc": "^4.3.2",
+    "yargs": "^18.0.0"
+  }
+}
