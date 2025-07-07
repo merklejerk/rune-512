@@ -7,13 +7,13 @@ It uses a carefully selected 512-character symbolic Unicode alphabet that is not
 For example, here's 32 random bytes encoded with Rune-512:
 
 ```
-ᛝ⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
+⋐⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
 ```
 
 Here's the string `"the fox jumped over the lazy dog"`:
 
 ```
-ᛝ⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
+⋐⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
 ```
 
 ## How It Works
@@ -21,7 +21,7 @@ Here's the string `"the fox jumped over the lazy dog"`:
 The encoding scheme is designed for both compactness and reliability.
 
 - **9-bit Encoding:** Each character in the 512-symbol alphabet represents a 9-bit value. This allows for a denser packing of data compared to 6-bit encodings like Base64.
-- **Magic Prefix:** Encoded strings are prepended with the `ᛝ` (Ingwaz) rune, which serves as a "magic prefix" for easy identification.
+- **Magic Prefix:** Encoded strings are prepended with the `⋐` symbol, which serves as a "magic prefix" for easy identification.
 - **Header and Checksum:** A 17-bit header is included in the encoded data. This header contains:
     - A 16-bit **CRC-16/XMODEM checksum** to ensure data integrity and detect corruption.
     - A 1-bit **parity flag** to resolve ambiguity in padding length.
@@ -38,3 +38,11 @@ This repository hosts multiple implementations of the Rune-512 specification.
 - **TypeScript:** An implementation for Node.js and browser environments.
   - **Location:** [`impls/ts/`](./impls/ts/)
   - **Status:** Coming soon!
+
+## Limitations
+
+`rune-512` is designed for encoding small to medium-sized binary payloads in text-based environments. It is not intended for all use cases. Please consider the following limitations:
+
+*   **Security:** The CRC-16 checksum only protects against accidental data corruption. **It does not provide cryptographic security.** Malicious actors can easily tamper with the data and forge a valid checksum. For applications requiring tamper-resistance, use a solution with cryptographic signatures or MACs (e.g., HMAC-SHA256).
+
+*   **Scalability:** The current implementations load the entire payload into memory. This makes them unsuitable for very large files, as it can lead to high memory usage and potential performance issues. In a server environment, processing excessively large inputs could pose a Denial of Service (DoS) risk. It is recommended to validate and limit input sizes before decoding.

@@ -10,13 +10,13 @@ It uses a carefully selected 512-character symbolic unicode alphabet that is not
 For example, here's 32 random bytes:
 
 ```
-ᛝ⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
+⋐⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
 ```
 
 Here's the string `"the fox jumped over the lazy dog"`:
 
 ```
-ᛝ⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
+⋐⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
 ```
 
 ## Features
@@ -45,32 +45,32 @@ The package provides a CLI for easy encoding and decoding from your terminal.
 To encode a string:
 ```bash
 python -m rune_512 encode "hello world"
-# Output: ᛝ⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
 
 To encode a hex string, use the `--hex` flag:
 ```bash
 python -m rune_512 encode --hex "deadbeef"
-# Output: ᛝ⣄⢯╺╭◮◠
+# Output: ⋐⣄⢯╺╭◮◠
 ```
 
 You can also pipe data from stdin:
 ```bash
 echo "some data" | python -m rune_512 encode
-# Output: ᛝ⠘⡴◍╻⣖⢤⠙⠰╴⣂
+# Output: ⋐⠘⡴◍╻⣖⢤⠙⠰╴⣂
 ```
 
 #### Decoding
 
 To decode a `rune-512` string:
 ```bash
-python -m rune_512 decode "ᛝ⠻◈□┫⣆▍◈⠻╯⣤▱┠"
+python -m rune_512 decode "⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠"
 # Output: hello world
 ```
 
 To decode to a hex string, use the `--hex` flag:
 ```bash
-python -m rune_512 decode --hex "ᛝ⣄⢯╺╭◮◠"
+python -m rune_512 decode --hex "⋐⣄⢯╺╭◮◠"
 # Output: deadbeef
 ```
 
@@ -88,7 +88,7 @@ from rune_512 import encode
 payload = b'hello world'
 encoded_string = encode(payload)
 print(encoded_string)
-# Output: ᛝ⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠
 ```
 
 #### Decoding
@@ -98,7 +98,7 @@ To decode a string:
 ```python
 from rune_512 import decode
 
-encoded_string = 'ᛝ⠻◈□┫⣆▍◈⠻╯⣤▱┠'
+encoded_string = '⋐⠻◈□┫⣆▍◈⠻╯⣤▱┠'
 try:
     payload, codepoints_consumed = decode(encoded_string)
     print(payload)
@@ -115,11 +115,19 @@ The `decode` function returns a tuple containing the decoded `bytes` and the num
 
 A `rune-512` encoded string consists of three parts:
 
-1.  **Magic Prefix (`ᛝ`):** A special character that identifies the string as `rune-512` encoded data. In practice, you can scan for this prefix to find the potential start of a `rune-512` encoded sequence in a larger text. The library exports this value as `MAGIC_PREFIX`.
+1.  **Magic Prefix (`⋐`):** A special character that identifies the string as `rune-512` encoded data. In practice, you can scan for this prefix to find the potential start of a `rune-512` encoded sequence in a larger text. The library exports this value as `MAGIC_PREFIX`.
 2.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
 3.  **Payload:** The binary data, packed into 9-bit chunks.
 
 Each 9-bit chunk is mapped to a character in the 512-character alphabet. This structure ensures that the data is both compact and verifiable.
+
+## Limitations
+
+`rune-512` is designed for encoding small to medium-sized binary payloads in text-based environments. It is not intended for all use cases. Please consider the following limitations:
+
+*   **Security:** The CRC-16 checksum only protects against accidental data corruption. **It does not provide cryptographic security.** Malicious actors can easily tamper with the data and forge a valid checksum. For applications requiring tamper-resistance, use a solution with cryptographic signatures or MACs (e.g., HMAC-SHA256).
+
+*   **Scalability:** The current implementations load the entire payload into memory. This makes them unsuitable for very large files, as it can lead to high memory usage and potential performance issues. In a server environment, processing excessively large inputs could pose a Denial of Service (DoS) risk. It is recommended to validate and limit input sizes before decoding.
 
 ## License
 

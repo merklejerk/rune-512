@@ -1,7 +1,7 @@
 import pytest
-import os
 import random
-from src.rune_512 import encode, decode, ALPHABET
+import os
+from src.rune_512 import encode, decode, ALPHABET, InvalidPrefixError, ShortPacketError, ChecksumMismatchError
 
 def test_encode_decode_empty():
     """Tests encoding and decoding an empty payload."""
@@ -43,14 +43,14 @@ def test_encode_decode_random(execution_number):
 
 def test_invalid_prefix():
     """Tests that decoding fails with an invalid prefix."""
-    with pytest.raises(ValueError, match="Invalid magic prefix"):
+    with pytest.raises(InvalidPrefixError):
         decode("invalid_prefix")
 
 def test_short_packet():
     """Tests that decoding fails with a packet that is too short."""
     # This will encode to something, but we'll truncate it to be too short.
     encoded = encode(b'short')
-    with pytest.raises(ValueError, match="Invalid packet: not enough data for header"):
+    with pytest.raises(ShortPacketError):
         decode(encoded[:1])
 
 def test_checksum_mismatch():
@@ -58,16 +58,17 @@ def test_checksum_mismatch():
     encoded = encode(b'some data')
     # Tamper with the encoded data to cause a checksum mismatch
     # Flipping the last character should be enough
-    tampered_char = 'b' if encoded[-1] == 'a' else 'a' # Not in alphabet
+    original_char_index = ALPHABET.index(encoded[-1])
+    tampered_char = ALPHABET[(original_char_index + 16) % len(ALPHABET)]
     tampered_encoded = encoded[:-1] + tampered_char
-    with pytest.raises(ValueError, match="Checksum mismatch: data is corrupt"):
+    with pytest.raises(ChecksumMismatchError):
         decode(tampered_encoded)
 
 def test_truncated_payload():
     """Tests that decoding fails when the payload is truncated."""
     encoded = encode(b'some data')
     # Truncate the payload part of the encoded string
-    with pytest.raises(ValueError, match="Checksum mismatch: data is corrupt"):
+    with pytest.raises(ChecksumMismatchError):
         decode(encoded[:-1])
 
 def test_extra_valid_codepoints():
@@ -78,7 +79,7 @@ def test_extra_valid_codepoints():
     # Add extra valid characters that are part of the alphabet
     encoded_with_extra = encoded + ALPHABET[0] + ALPHABET[1]
     
-    with pytest.raises(ValueError, match="Checksum mismatch: data is corrupt"):
+    with pytest.raises(ChecksumMismatchError):
         decode(encoded_with_extra)
 
 def test_extra_invalid_codepoints_are_ignored():

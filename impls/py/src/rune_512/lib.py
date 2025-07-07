@@ -1,9 +1,10 @@
 import crc
 from typing import cast, Any
 from .alphabet import ALPHABET
+from .errors import InvalidPrefixError, ShortPacketError, ChecksumMismatchError
 
 ALPHABET_MAP = {cp: i for i, cp in enumerate(ALPHABET)}
-MAGIC_PREFIX = "ᛝ"
+MAGIC_PREFIX = "⋐"
 HEADER_BITS = 17
 PARITY_BIT = 1
 CHECKSUM_BITS = 16
@@ -66,21 +67,22 @@ def decode(encoded_string: str) -> tuple[bytes, int]:
     Returns the payload and the number of codepoints consumed.
     """
     if not encoded_string:
-        raise ValueError("Invalid packet: empty string")
+        raise ShortPacketError("Invalid packet: empty string")
 
     codepoints_consumed = 0
     data_stream = encoded_string
+
     if encoded_string.startswith(MAGIC_PREFIX):
         data_stream = encoded_string[len(MAGIC_PREFIX):]
         codepoints_consumed += len(MAGIC_PREFIX)
     else:
-        raise ValueError("Invalid magic prefix")
+        raise InvalidPrefixError()
 
     decoded_int, num_bits, stream_codepoints_consumed = _decode_stream_to_int(data_stream)
     codepoints_consumed += stream_codepoints_consumed
-    
+
     if num_bits < HEADER_BITS:
-        raise ValueError("Invalid packet: not enough data for header")
+        raise ShortPacketError("Invalid packet: not enough data for header")
 
     payload_bits_padded = num_bits - HEADER_BITS
     
@@ -97,11 +99,11 @@ def decode(encoded_string: str) -> tuple[bytes, int]:
         padding_bits = 8
 
     if payload_bits_padded < padding_bits:
-        raise ValueError("Invalid padding")
+        raise ShortPacketError("Invalid padding")
 
     payload_bits = payload_bits_padded - padding_bits
     retrieved_payload_int = retrieved_payload_int_padded >> padding_bits
-    
+
     payload_byte_length = payload_bits // 8
 
     # Handle case where payload is empty
@@ -113,6 +115,6 @@ def decode(encoded_string: str) -> tuple[bytes, int]:
     calculated_checksum = crc_calculator.checksum(retrieved_payload)
 
     if calculated_checksum != retrieved_checksum:
-        raise ValueError("Checksum mismatch: data is corrupt")
+        raise ChecksumMismatchError()
 
     return retrieved_payload, codepoints_consumed

@@ -1,6 +1,7 @@
 import sys
 import argparse
 from .lib import encode, decode
+from . import RuneError
 
 def main():
     parser = argparse.ArgumentParser(
@@ -62,8 +63,8 @@ def main():
             if args.hex:
                 print(decoded.hex())
             else:
-                sys.stdout.buffer.write(decoded)
-        except ValueError as e:
+                print(decoded.decode())
+        except RuneError as e:
             print(f"error: {e}", file=sys.stderr)
             sys.exit(1)
 
