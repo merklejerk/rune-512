@@ -1,5 +1,5 @@
 import { crc16xmodem } from 'crc';
-import { toBigIntBE, toBufferBE } from 'bigint-buffer';
+import { toBigIntBE, toBufferBE } from './bigint-helpers.js';
 import { ALPHABET, ALPHABET_MAP } from './alphabet.js';
 import { ShortPacketError, ChecksumMismatchError, InvalidPaddingError } from './errors.js';
 
