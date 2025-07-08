@@ -1,10 +1,12 @@
 {
   "packages": {
     "impls/py": {
-      "component": "rune-512-py"
+      "component": "rune-512-py",
+      "release-type": "python"
     },
     "impls/ts": {
-      "component": "rune-512-ts"
+      "component": "rune-512-ts",
+      "release-type": "node"
     }
   }
 }
