@@ -1,5 +1,5 @@
 {
-  "name": "rune-512",
+  "name": "@rune-512/ts",
   "version": "0.1.0",
   "description": "A Typescript implementation of the Rune-512 encoding and decoding algorithm.",
   "type": "module",

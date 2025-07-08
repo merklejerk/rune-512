@@ -1,0 +1,10 @@
+{
+  "packages": {
+    "impls/py": {
+      "component": "rune-512-py"
+    },
+    "impls/ts": {
+      "component": "rune-512-ts"
+    }
+  }
+}
