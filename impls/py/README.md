@@ -10,13 +10,13 @@ It uses a carefully selected 512-character symbolic unicode alphabet that is not
 For example, here's 32 random bytes:
 
 ```
-⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
+⣣⡳⣜▣╎⡇◡━┉◳⠢╖⠿⣺⢔▶⢎⡝╺⡂╍╞▨╿□⣼⣆⢼▤⡖⢀
 ```
 
 Here's the string `"the fox jumped over the lazy dog"`:
 
 ```
-⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
+⣟▴⣨□┩⠆⣍◞⠐⡪⣪▵▃⡖⢄⠛▻⡥⣤⢁▣⢆⢤⠛⠰╺⣲⢁┣⣶⣠
 ```
 
 ## Features
@@ -45,13 +45,13 @@ The package provides a CLI for easy encoding and decoding from your terminal.
 To encode a string:
 ```bash
 python -m rune_512 encode "hello world"
-# Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⣦◩⣐▕╣⣆◤⠝▷╲⣘▐
 ```
 
 To encode a hex string, use the `--hex` flag:
 ```bash
 python -m rune_512 encode --hex "deadbeef"
-# Output: ⣄⢯╺╭◮◠
+# Output: ⢜╓▽⢶◷⣰
 ```
 
 You can also pipe data from stdin:
@@ -64,13 +64,13 @@ echo "some data" | python -m rune_512 encode
 
 To decode a `rune-512` string:
 ```bash
-python -m rune_512 decode "⠻◈□┫⣆▍◈⠻╯⣤▱┠"
+python -m rune_512 decode "⣦◩⣐▕╣⣆◤⠝▷╲⣘▐"
 # Output: hello world
 ```
 
 To decode to a hex string, use the `--hex` flag:
 ```bash
-python -m rune_512 decode --hex "⣄⢯╺╭◮◠"
+python -m rune_512 decode --hex "⢜╓▽⢶◷⣰"
 # Output: deadbeef
 ```
 
@@ -88,7 +88,7 @@ from rune_512 import encode
 payload = b'hello world'
 encoded_string = encode(payload)
 print(encoded_string)
-# Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⣦◩⣐▕╣⣆◤⠝▷╲⣘▐
 ```
 
 #### Decoding
@@ -98,7 +98,7 @@ To decode a string:
 ```python
 from rune_512 import decode
 
-encoded_string = '⠻◈□┫⣆▍◈⠻╯⣤▱┠'
+encoded_string = '⣦◩⣐▕╣⣆◤⠝▷╲⣘▐'
 try:
     payload, codepoints_consumed = decode(encoded_string)
     print(payload)
