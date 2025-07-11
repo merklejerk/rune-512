@@ -1,17 +1,25 @@
-import { crc16xmodem } from 'crc';
+import { createHash } from 'crypto';
 import { toBigIntBE, toBufferBE } from './bigint-helpers.js';
 import { ALPHABET, ALPHABET_MAP } from './alphabet.js';
 import { ShortPacketError, ChecksumMismatchError, InvalidPaddingError } from './errors.js';
 
-const HEADER_BITS = 17;
+const HEADER_BITS = 18;
 const PARITY_BIT = 1;
-const CHECKSUM_BITS = 16;
+const CHECKSUM_BITS = 17;
+
+function _calculateChecksum(payload: Uint8Array): number {
+    const hasher = createHash('sha256');
+    hasher.update(payload);
+    const fullHash = hasher.digest();
+    const fullHashInt = toBigIntBE(fullHash);
+    return Number(fullHashInt & BigInt((1 << CHECKSUM_BITS) - 1));
+}
 
 /**
  * Encodes a byte payload into a Rune-512 string.
  */
 export function encode(payload: Uint8Array): string {
-    const checksum = crc16xmodem(Buffer.from(payload));
+    const checksum = _calculateChecksum(payload);
     
     const totalBits = HEADER_BITS + payload.length * 8;
     const padding = (9 - (totalBits % 9)) % 9;
@@ -106,7 +114,7 @@ export function decode(encodedString: string): [Uint8Array, number] {
     
     const retrievedPayload = toBufferBE(retrievedPayloadInt, payloadByteLength);
     
-    const calculatedChecksum = crc16xmodem(retrievedPayload);
+    const calculatedChecksum = _calculateChecksum(retrievedPayload);
     
     if (calculatedChecksum !== retrievedChecksum) {
         throw new ChecksumMismatchError();

@@ -2,12 +2,14 @@
     "bootstrap-sha": "3924fd0a57ab4d388566508fef02a76cccaeff53",
     "packages": {
         "impls/py": {
-        "component": "rune-512-py",
-        "release-type": "python"
+            "component": "rune-512-py",
+            "release-type": "python",
+            "bump-minor-pre-major": true
         },
         "impls/ts": {
-        "component": "rune-512-ts",
-        "release-type": "node"
+            "component": "rune-512-ts",
+            "release-type": "node",
+            "bump-minor-pre-major": true
         }
     }
 }
