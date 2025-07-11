@@ -23,9 +23,7 @@ keywords = [
     "binary encoding",
     "codepoint encoding",
 ]
-dependencies = [
-    "crc>=7.1.0",
-]
+dependencies = []
 
 [dependency-groups]
 dev = [
