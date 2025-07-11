@@ -10,13 +10,13 @@ It uses a carefully selected 512-character symbolic unicode alphabet that is not
 For example, here's 32 random bytes:
 
 ```
-⠅┯⡊⡋⢜⢴⣗▮⢌▟⣣┘▊⡼╋⢱⣜▧⣎━▋◰╾╧□⠜◡⢎⣙⠴▀
+⣣⡳⣜▣╎⡇◡━┉◳⠢╖⠿⣺⢔▶⢎⡝╺⡂╍╞▨╿□⣼⣆⢼▤⡖⢀
 ```
 
 Here's the string `"the fox jumped over the lazy dog"`:
 
 ```
-⠟ ⡋⡑◣┦◻⢥┇⡖⠑⢡┇◗╊◞┪┹⢦◈◠┍⡬⢅⣇┤⡻⠶⠡⠨⡳⢿◣⡂◎◱⢩▵⣡⢊⣛⡉⣖⠔┭⣣○⣛┃⢒┯⡫╧⠲▊◃▲⣷⠹⢠
+⣟▴⣨□┩⠆⣍◞⠐⡪⣪▵▃⡖⢄⠛▻⡥⣤⢁▣⢆⢤⠛⠰╺⣲⢁┣⣶⣠
 ```
 
 ## Features
@@ -46,13 +46,13 @@ The package provides a CLI for easy encoding and decoding from your terminal.
 To encode a string:
 ```bash
 npx rune-512 encode "hello world"
-# Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
+# Output: ⣦◩⣐▕╣⣆◤⠝▷╲⣘▐
 ```
 
 To encode a hex string, use the `--hex` flag:
 ```bash
 npx rune-512 encode --hex "deadbeef"
-# Output: ⣄⢯╺╭◮◠
+# Output: ⢜╓▽⢶◷⣰
 ```
 
 You can also pipe data from stdin:
@@ -65,13 +65,13 @@ echo "some data" | npx rune-512 encode
 
 To decode a `rune-512` string:
 ```bash
-npx rune-512 decode "⠻◈□┫⣆▍◈⠻╯⣤▱┠"
+npx rune-512 decode "⣦◩⣐▕╣⣆◤⠝▷╲⣘▐"
 # Output: hello world
 ```
 
 To decode to a hex string, use the `--hex` flag:
 ```bash
-npx rune-512 decode --hex "⣄⢯╺╭◮◠"
+npx rune-512 decode --hex "⢜╓▽⢶◷⣰"
 # Output: deadbeef
 ```
 
@@ -89,7 +89,7 @@ import { encode } from 'rune-512';
 const payload = new TextEncoder().encode('hello world');
 const encodedString = encode(payload);
 console.log(encodedString);
-// Output: ⠻◈□┫⣆▍◈⠻╯⣤▱┠
+// Output: ⣦◩⣐▕╣⣆◤⠝▷╲⣘▐
 ```
 
 #### Decoding
@@ -99,7 +99,7 @@ To decode a string:
 ```typescript
 import { decode, RuneError } from 'rune-512';
 
-const encodedString = '⠻◈□┫⣆▍◈⠻╯⣤▱┠';
+const encodedString = '⣦◩⣐▕╣⣆◤⠝▷╲⣘▐';
 
 try {
     const [payload, codepointsConsumed] = decode(encodedString);
