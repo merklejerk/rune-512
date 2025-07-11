@@ -1,4 +1,4 @@
-import crc
+import hashlib
 from typing import cast, Any
 from .alphabet import ALPHABET
 from .errors import (
@@ -8,18 +8,25 @@ from .errors import (
 )
 
 ALPHABET_MAP = {cp: i for i, cp in enumerate(ALPHABET)}
-HEADER_BITS = 17
+HEADER_BITS = 18
 PARITY_BIT = 1
-CHECKSUM_BITS = 16
+CHECKSUM_BITS = 17
 
-# CRC-16/XMODEM
-crc_calculator = crc.Calculator(cast(Any, crc.Crc16.XMODEM))
+def _calculate_checksum(payload: bytes) -> int:
+    """
+    Calculates the checksum for the payload.
+    """
+    hasher = hashlib.sha256()
+    hasher.update(payload)
+    full_hash = hasher.digest()
+    full_hash_int = int.from_bytes(full_hash, 'big')
+    return full_hash_int & ((1 << CHECKSUM_BITS) - 1)
 
 def encode(payload: bytes) -> str:
     """
     Encodes a byte payload into a Rune-512 string.
     """
-    checksum = crc_calculator.checksum(payload)
+    checksum = _calculate_checksum(payload)
     
     total_bits = HEADER_BITS + len(payload) * 8
     padding = (9 - (total_bits % 9)) % 9
@@ -112,7 +119,7 @@ def decode(encoded_string: str) -> tuple[bytes, int]:
     else:
         retrieved_payload = retrieved_payload_int.to_bytes(payload_byte_length, 'big')
 
-    calculated_checksum = crc_calculator.checksum(retrieved_payload)
+    calculated_checksum = _calculate_checksum(retrieved_payload)
 
     if calculated_checksum != retrieved_checksum:
         raise ChecksumMismatchError()

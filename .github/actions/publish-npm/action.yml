@@ -6,31 +6,31 @@ inputs:
   path:
     description: 'Path to the package to publish'
     required: true
-  noop:
-    description: 'If true, do not actually publish'
-    required: false
-    default: false
+  publish:
+    description: 'Set to true to actually publish'
+    required: true
+    default: 'false'
 runs:
   using: 'composite'
   steps:
-    - if: ${{ !inputs.noop }}
+    - if: ${{ inputs.publish == 'true' }}
       uses: actions/setup-node@v4
       with:
         node-version: 21
         registry-url: https://registry.npmjs.org/
-    - if: ${{ !inputs.noop }}
+    - if: ${{ inputs.publish == 'true' }}
       shell: bash
       run: |
         cd ${{ inputs.path }} && \
         echo "publishing typescript implementation" at ${{ inputs.path }} && \
         npm i -D && \
         npm run build
-    - if: ${{ !inputs.noop }}
+    - if: ${{ inputs.publish == 'true' }}
       shell: bash
       run: npm publish --access public
       env:
         NODE_AUTH_TOKEN: ${{ inputs.token }}
     - shell: bash
-      run: echo "published=" ${{ !inputs.noop }} >> $GITHUB_OUTPUT
+      run: echo "published=" ${{ inputs.publish == 'true' }} >> $GITHUB_OUTPUT
 
   
