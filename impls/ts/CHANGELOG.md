@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0](https://github.com/merklejerk/rune-512/compare/rune-512-ts-v0.2.1...rune-512-ts-v0.3.0) (2025-07-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* use isomorphic implementations for hashing and buffers for browser compatibility
+
+### Features
+
+* use isomorphic implementations for hashing and buffers for browser compatibility ([7687faf](https://github.com/merklejerk/rune-512/commit/7687faff9253309a2198caadb182e37ba33e680c))
+
 ## [0.2.1](https://github.com/merklejerk/rune-512/compare/rune-512-ts-v0.2.0...rune-512-ts-v0.2.1) (2025-07-11)
 
 
