@@ -22,7 +22,7 @@ async function main() {
                 inputString = readFileSync(0, 'utf-8').trim();
             }
 
-            let inputBytes: Buffer;
+            let inputBytes: Uint8Array;
             if (argv.hex) {
                 try {
                     inputBytes = Buffer.from(inputString, 'hex');
@@ -31,10 +31,10 @@ async function main() {
                     process.exit(1);
                 }
             } else {
-                inputBytes = Buffer.from(inputString);
+                inputBytes = new TextEncoder().encode(inputString);
             }
 
-            const encoded = encode(inputBytes);
+            const encoded = await encode(inputBytes);
             console.log(encoded);
         })
         .command('decode [string]', 'Decode a string', (yargs) => {
@@ -55,11 +55,11 @@ async function main() {
             }
 
             try {
-                const [decoded] = decode(inputString);
+                const [decoded] = await decode(inputString);
                 if (argv.hex) {
                     console.log(Buffer.from(decoded).toString('hex'));
                 } else {
-                    console.log(decoded.toString());
+                    console.log(new TextDecoder().decode(decoded));
                 }
             } catch (e: any) {
                 console.error(`error: ${e.message}`);

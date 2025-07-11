@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { toBigIntBE, toBufferBE } from './bigint-helpers.js';
 import { ALPHABET, ALPHABET_MAP } from './alphabet.js';
 import { ShortPacketError, ChecksumMismatchError, InvalidPaddingError } from './errors.js';
@@ -7,19 +6,29 @@ const HEADER_BITS = 18;
 const PARITY_BIT = 1;
 const CHECKSUM_BITS = 17;
 
-function _calculateChecksum(payload: Uint8Array): number {
-    const hasher = createHash('sha256');
-    hasher.update(payload);
-    const fullHash = hasher.digest();
-    const fullHashInt = toBigIntBE(fullHash);
+async function _calculateChecksum(payload: Uint8Array): Promise<number> {
+    let fullHash: ArrayBuffer;
+
+    // Check for browser environment
+    if (typeof window !== 'undefined' && window.crypto?.subtle) {
+        fullHash = await window.crypto.subtle.digest('SHA-256', payload);
+    } else {
+        // Fallback to Node.js crypto
+        const { createHash } = await import('crypto');
+        const hasher = createHash('sha256');
+        hasher.update(payload);
+        fullHash = hasher.digest().buffer;
+    }
+    
+    const fullHashInt = toBigIntBE(new Uint8Array(fullHash));
     return Number(fullHashInt & BigInt((1 << CHECKSUM_BITS) - 1));
 }
 
 /**
  * Encodes a byte payload into a Rune-512 string.
  */
-export function encode(payload: Uint8Array): string {
-    const checksum = _calculateChecksum(payload);
+export async function encode(payload: Uint8Array): Promise<string> {
+    const checksum = await _calculateChecksum(payload);
     
     const totalBits = HEADER_BITS + payload.length * 8;
     const padding = (9 - (totalBits % 9)) % 9;
@@ -28,7 +37,7 @@ export function encode(payload: Uint8Array): string {
     
     const header = (parityBit << CHECKSUM_BITS) | checksum;
     
-    let binaryPacketInt = (BigInt(header) << BigInt(payload.length * 8)) | toBigIntBE(Buffer.from(payload));
+    let binaryPacketInt = (BigInt(header) << BigInt(payload.length * 8)) | toBigIntBE(payload);
     
     const paddedBits = totalBits + padding;
     binaryPacketInt = binaryPacketInt << BigInt(padding);
@@ -73,7 +82,7 @@ function decodeStreamToInt(dataStream: string): [bigint, number, number] {
  * Decodes a Rune-512 string into a byte payload.
  * Returns the payload and the number of codepoints consumed.
  */
-export function decode(encodedString: string): [Uint8Array, number] {
+export async function decode(encodedString: string): Promise<[Uint8Array, number]> {
     if (!encodedString) {
         return [new Uint8Array(), 0];
     }
@@ -90,9 +99,9 @@ export function decode(encodedString: string): [Uint8Array, number] {
     
     const payloadBitsPadded = numBits - HEADER_BITS;
     
-    const headerInt = Number(decodedInt >> BigInt(payloadBitsPadded));
-    const parityBit = headerInt >> CHECKSUM_BITS;
-    const retrievedChecksum = headerInt & ((1 << CHECKSUM_BITS) - 1);
+    const headerInt = decodedInt >> BigInt(payloadBitsPadded);
+    const parityBit = Number(headerInt >> BigInt(CHECKSUM_BITS));
+    const retrievedChecksum = Number(headerInt & BigInt((1 << CHECKSUM_BITS) - 1));
     
     const payloadMask = (1n << BigInt(payloadBitsPadded)) - 1n;
     const retrievedPayloadIntPadded = decodedInt & payloadMask;
@@ -114,7 +123,7 @@ export function decode(encodedString: string): [Uint8Array, number] {
     
     const retrievedPayload = toBufferBE(retrievedPayloadInt, payloadByteLength);
     
-    const calculatedChecksum = _calculateChecksum(retrievedPayload);
+    const calculatedChecksum = await _calculateChecksum(retrievedPayload);
     
     if (calculatedChecksum !== retrievedChecksum) {
         throw new ChecksumMismatchError();

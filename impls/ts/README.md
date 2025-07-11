@@ -87,7 +87,7 @@ To encode a byte array (`Uint8Array`):
 import { encode } from 'rune-512';
 
 const payload = new TextEncoder().encode('hello world');
-const encodedString = encode(payload);
+const encodedString = await encode(payload);
 console.log(encodedString);
 // Output: ⣦◩⣐▕╣⣆◤⠝▷╲⣘▐
 ```
@@ -102,7 +102,7 @@ import { decode, RuneError } from 'rune-512';
 const encodedString = '⣦◩⣐▕╣⣆◤⠝▷╲⣘▐';
 
 try {
-    const [payload, codepointsConsumed] = decode(encodedString);
+    const [payload, codepointsConsumed] = await decode(encodedString);
     console.log(new TextDecoder().decode(payload));
     // Output: hello world
     console.log(`Consumed ${codepointsConsumed} codepoints.`);
