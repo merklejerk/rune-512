@@ -22,7 +22,7 @@ Here's the string `"the fox jumped over the lazy dog"`:
 ## Features
 
 - **Compact:** Encodes 9 bits per character, offering significant space savings over Base64.
-- **Reliable:** Uses a CRC-16 checksum to detect data corruption.
+- **Reliable:** Uses a 17-bit checksum derived from the SHA-256 hash of the payload to detect data corruption.
 - **Safe:** The alphabet consists of Unicode codepoints with wide compatibility across common platforms.
 - **Easy to Use:** Provides a simple command-line interface and a straightforward Python library.
 
@@ -117,7 +117,7 @@ It is up to the user to decide on a scheme for indicating the start of a valid e
 
 A `rune-512` encoded string consists of two parts:
 
-1.  **Header:** A 17-bit section containing a 16-bit CRC-16/XMODEM checksum of the original payload and a parity bit for padding disambiguation.
+1.  **Header:** An 18-bit section containing a 17-bit checksum derived from the SHA-256 hash of the original payload and a parity bit for padding disambiguation.
 2.  **Payload:** The binary data, packed into 9-bit chunks.
 
 Each 9-bit chunk is mapped to a character in the 512-character alphabet. This structure ensures that the data is both compact and verifiable.
@@ -126,7 +126,7 @@ Each 9-bit chunk is mapped to a character in the 512-character alphabet. This st
 
 `rune-512` is designed for encoding small to medium-sized binary payloads in text-based environments. It is not intended for all use cases. Please consider the following limitations:
 
-*   **Security:** The CRC-16 checksum only protects against accidental data corruption. **It does not provide cryptographic security.** Malicious actors can easily tamper with the data and forge a valid checksum. For applications requiring tamper-resistance, use a solution with cryptographic signatures or MACs (e.g., HMAC-SHA256).
+*   **Security:** The SHA-256-derived checksum only protects against accidental data corruption. **It does not provide cryptographic security.** Malicious actors can easily tamper with the data and forge a valid checksum. For applications requiring tamper-resistance, use a solution with cryptographic signatures or MACs (e.g., HMAC-SHA256).
 
 *   **Scalability:** The current implementations load the entire payload into memory. This makes them unsuitable for very large files, as it can lead to high memory usage and potential performance issues. In a server environment, processing excessively large inputs could pose a Denial of Service (DoS) risk. It is recommended to validate and limit input sizes before decoding.
 

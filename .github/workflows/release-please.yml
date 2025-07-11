@@ -20,15 +20,20 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      - name: debug
+        run: |
+          echo <<EOF ${{ toJson(steps.release.outputs) }} \
+          EOF
+        shell: bash
       - name: Checkout
         uses: actions/checkout@v4
       - uses: ./.github/actions/publish-npm
         with:
           path: impls/ts
-          noop: ${{ contains(steps.release.outputs.paths_released, 'impls/ts') }}
+          noop: ${{ !contains(steps.release.outputs.paths_released, 'impls/ts') }}
           token: ${{ secrets.NPM_TOKEN }}
       - uses: ./.github/actions/publish-pypi
         with:
           path: impls/py
-          noop: ${{ contains(steps.release.outputs.paths_released, 'impls/ts') }}
+          noop: ${{ !contains(steps.release.outputs.paths_released, 'impls/ts') }}
           token: ${{ secrets.PYPI_TOKEN }}
