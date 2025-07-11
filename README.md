@@ -36,7 +36,7 @@ This repository hosts multiple implementations of the Rune-512 specification.
 
 - **TypeScript:** An implementation for Node.js and browser environments.
   - **Location:** [`impls/ts/`](./impls/ts/)
-  - **Status:** Coming soon!
+  - **Status:** [![NPM version](https://badge.fury.io/js/rune-512.svg)](https://badge.fury.io/js/rune-512)
 
 ## Limitations
 
