@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/merklejerk/rune-512/compare/rune-512-ts-v0.2.0...rune-512-ts-v0.2.1) (2025-07-11)
+
+
+### Bug Fixes
+
+* update stale encodings in READMEs ([3832f3b](https://github.com/merklejerk/rune-512/commit/3832f3baf5c2d512852bd35cbe3dbf523acdc88d))
+
 ## [0.2.0](https://github.com/merklejerk/rune-512/compare/rune-512-ts-v0.1.0...rune-512-ts-v0.2.0) (2025-07-11)
 
 

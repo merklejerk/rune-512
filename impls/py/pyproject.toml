@@ -1,6 +1,6 @@
 [project]
 name = "rune-512"
-version = "0.3.0"
+version = "0.3.1"
 description = "A Python implementation of the Rune-512 encoding and decoding algorithm."
 readme = "README.md"
 requires-python = ">=3.9"
