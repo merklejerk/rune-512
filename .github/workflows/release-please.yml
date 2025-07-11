@@ -25,10 +25,10 @@ jobs:
       - uses: ./.github/actions/publish-npm
         with:
           path: impls/ts
-          noop: ${{ contains(steps.release.outputs.paths_released, 'impls/ts') }}
+          publish: ${{ contains(steps.release.outputs.paths_released, 'impls/ts') }}
           token: ${{ secrets.NPM_TOKEN }}
       - uses: ./.github/actions/publish-pypi
         with:
           path: impls/py
-          noop: ${{ contains(steps.release.outputs.paths_released, 'impls/ts') }}
+          publish: ${{ contains(steps.release.outputs.paths_released, 'impls/py') }}
           token: ${{ secrets.PYPI_TOKEN }}
