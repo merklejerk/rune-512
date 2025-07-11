@@ -19,29 +19,19 @@
   "keywords": [
     "binary",
     "encoding",
-    "codepoints",
+    "decoding",
     "base64",
-    "rune-512",
-    "base512"
+    "data encoding",
+    "binary encoding",
+    "codepoint encoding"
   ],
   "author": "Lawrence Forman <me@merklejerk.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/merklejerk/rune-512/issues"
-  },
-  "homepage": "https://github.com/merklejerk/rune-512#readme",
+  "dependencies": {},
   "devDependencies": {
-    "@types/chai": "^4.3.20",
-    "@types/crc": "^4.0.0",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "^24.0.10",
-    "@types/yargs": "^17.0.32",
-    "chai": "^5.1.1",
-    "mocha": "^10.5.2",
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "crc": "^4.3.2",
-    "yargs": "^18.0.0"
+    "@types/mocha": "^10.0.7",
+    "@types/node": "^20.14.13",
+    "mocha": "^10.6.0",
+    "typescript": "^5.5.4"
   }
 }
